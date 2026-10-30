@@ -1,13 +1,13 @@
 ---
 name: tech-research
-description: Multi-source research on a technology or programming topic. Collects recent sources from YouTube, Hacker News, Reddit (via web search), official docs and tech blogs, and arXiv; pulls adoption metrics from GitHub and package registries (pub.dev, npm, PyPI, crates.io); loads the sources into a new Google NotebookLM notebook for cited analysis aimed at the user's question; fact-checks key capability claims against official docs; and writes a Vietnamese decision report with source labels, confidence levels, a metrics table, a "Thử nhanh" quick-start section and an HTML infographic, saved in the current working directory and shown in chat. Use it whenever the user wants to research, compare, evaluate or get a briefing on tools, frameworks, libraries or technical approaches ("research X", "tìm hiểu X", "so sánh A và B", "nên dùng gì cho X"), even if they don't name the sources. If they say "chỉ YouTube" (YouTube only), run the YouTube-only path described inside.
+description: Multi-source research on a technology or programming topic. Collects recent sources from YouTube, Hacker News, Reddit (via web search), Stack Overflow, the tools' own GitHub issues and changelogs, official docs and tech blogs, and arXiv; pulls adoption metrics from GitHub and package registries (pub.dev, npm, PyPI, crates.io); loads the sources into a new Google NotebookLM notebook for cited analysis aimed at the user's question; fact-checks key capability claims against official docs; and writes a Vietnamese decision report with source labels, confidence levels, a metrics table, a "Thử nhanh" quick-start section and an HTML infographic, saved in the current working directory and shown in chat. Use it whenever the user wants to research, compare, evaluate or get a briefing on tools, frameworks, libraries or technical approaches ("research X", "tìm hiểu X", "so sánh A và B", "nên dùng gì cho X"), even if they don't name the sources. If they say "chỉ YouTube" (YouTube only), run the YouTube-only path described inside.
 compatibility: Needs the youtube-search skill (yt-dlp) and the notebooklm-studio skill (notebooklm-py CLI, logged in), both in this plugin's skills/ folder. Python 3 stdlib for the collectors; Playwright + Chrome/Chromium (auto-detected, or CHROME_PATH) for the infographic; WebSearch/WebFetch for docs, blogs and Reddit.
 ---
 
 # Tech Research (multi-source)
 
 ```
-topic + angle → collect in parallel (YouTube · HN · Reddit/web · docs & blogs · arXiv)
+topic + angle → collect in parallel (YouTube · HN · Reddit/web · Stack Overflow · GitHub issues · docs & blogs · arXiv)
   → select + label → NotebookLM (one notebook) → cited analysis → fact-check against official docs
   → adoption metrics (GitHub + registries) → Vietnamese report + HTML infographic → file + chat
 ```
@@ -54,13 +54,18 @@ drop **Bảng hỗ trợ**, **Số liệu áp dụng** and **Thử nhanh**, mark
 and list the skipped steps in the method notes. In the infographic, use `.unk` for any platform badge
 the videos don't state explicitly, or leave the badges out.
 
+**Quick mode** (`/research-quick`, or "nhanh", "quick"): see **Quick mode** below. Also the fallback
+when NotebookLM is unavailable.
+
+**Update mode** (`/research-update <report.md>`, or "cập nhật báo cáo"): see **Update mode** below.
+
 Tell the user up front that a full run takes roughly 10–20 minutes. Don't come back with more
 questions mid-run unless something breaks.
 
 ## 2. Preflight
 
 ```bash
-notebooklm auth check --test --json        # need status "ok"; otherwise stop: ask the user to run `notebooklm login`
+notebooklm auth check --test --json        # need status "ok"; otherwise offer: run `notebooklm login`, or switch to Quick mode
 mkdir -p $WORK/sources                     # every later step writes here
 date +%s > $WORK/start                     # for the run time in the method notes
 ```
@@ -79,18 +84,23 @@ Run the scripts in the background in one go, and do the web searches while they 
 | Hacker News | `cd $SK && python3 hn_collect.py "<query>" --months 24 --limit 10 --json > $WORK/hn-<q>.json` (short queries: a tool name or 2–3 words; HN matches titles and URLs only) | 10+ |
 | arXiv | `cd $SK && python3 arxiv_collect.py '"<phrase>" <word>' --months 24 --limit 10 --json > $WORK/arxiv.json` | 10 |
 | Reddit | WebSearch `site:reddit.com <topic>` and `site:reddit.com/r/<sub> <tool>` for the relevant subreddits (e.g. r/FlutterDev, r/programming, r/QualityAssurance) | 8+ |
+| Stack Overflow | `cd $SK && python3 so_collect.py "<query>" --months 24 --limit 10 --json > $WORK/so-<q>.json` (answered questions only; most useful for libraries and frameworks) | 10 |
+| GitHub issues | for each compared tool whose repo you know: `cd $SK && python3 gh_collect.py issues <owner/repo> --months 12 --limit 10 --json > $WORK/gh-<tool>.json` (most-commented issues = real pain points) | 10 per tool |
 | Docs & blogs | WebSearch `<tool> documentation`, `<tool> vs <tool>`, `<topic> 2026 blog`, `<topic> experience migration` | 10+ |
 
 `<q>` is just a query index. Merge the YouTube files into `$WORK/search.json` keeping the shape
 `{"results": [...], "closest_older": [...], "scanned": <sum>, "failed": <sum of counts>}`, de-duplicated
 by URL. Skip empty files: on a bot check, yt_search prints nothing. Follow youtube-search's guidance
 there (wait, or cookies only with the user's consent).
-HN is thin on niche topics; that's a finding, not a failure. Note it.
+HN is thin on niche topics; that's a finding, not a failure. Note it. Stack Overflow is thin for new or
+non-library topics (AI tools, workflows); same rule. Without a GitHub token, issue search allows
+10 requests/minute, so cap it at ~5 tools.
 
 ## 4. Select and label
 
-Targets, with a hard cap of 50 in the notebook: **YouTube ≤ 10 · docs & blogs 6–8 · community threads
-(HN + Reddit) 5–8 · arXiv 0–3 · total ≈ 20–30.** Never pad with off-topic sources; report a shortfall.
+Targets, with a hard cap of 50 in the notebook: **YouTube ≤ 10 · docs & blogs 6–8 (plus ≤ 1 changelog per
+recommended tool) · community threads (HN + Reddit + Stack Overflow + GitHub issues) 6–10 · arXiv 0–3 ·
+total ≈ 20–30.** Never pad with off-topic sources; report a shortfall.
 
 Priority: relevance to the angle → substance (skip Shorts and clips under 2 minutes, thin listicles,
 SEO spam) → **independence** (when two sources are equally relevant, prefer the one without a commercial
@@ -99,8 +109,9 @@ stake) → variety (≤ 2–3 per channel, author or organization).
 Give each source exactly one label (exact strings; the table script rejects others):
 
 - `Nhà cung cấp`: made or sells the tool, or the content is sponsored by someone with a stake.
-- `Cộng đồng`: users discussing it (HN, Reddit, independent personal blogs).
-- `Tài liệu chính thức`: docs, changelogs, READMEs.
+- `Cộng đồng`: users discussing it (HN, Reddit, Stack Overflow, GitHub issues, independent personal blogs).
+  A GitHub issue stays `Cộng đồng` even when maintainers reply; the snapshot marks their comments.
+- `Tài liệu chính thức`: docs, changelogs / GitHub releases, READMEs.
 - `Nghiên cứu`: academic papers.
 - `Báo chí / tổng hợp`: third-party articles that fit none of the above.
 
@@ -109,7 +120,7 @@ and something else, choose `Nhà cung cấp` and say why in the method notes.
 
 Write `$WORK/sources.json`, one row per selected source in report order. `n` is the source's number
 everywhere: in the report's [n] citations and in its snapshot file name.
-`{"n", "kind": "youtube|web|reddit|hn|arxiv", "label", "title", "url", "publisher", "nlm_input", "nlm_status"}`
+`{"n", "kind": "youtube|web|reddit|hn|so|gh-issue|changelog|arxiv", "label", "title", "url", "publisher", "nlm_input", "nlm_status"}`
 
 - `nlm_input`: the exact value you pass to NotebookLM. That is the video URL, the arXiv `pdf_url`, or
   the snapshot's absolute path `$WORK/sources/<kind>-<n>.md`. The citation map joins on it.
@@ -121,6 +132,10 @@ everywhere: in the report's [n] citations and in its snapshot file name.
 NotebookLM often can't read Reddit, HN or JS-heavy pages from a URL, so give it text files:
 
 - HN: `cd $SK && python3 hn_collect.py --thread <id> --out $WORK/sources/hn-<n>.md`
+- Stack Overflow: `cd $SK && python3 so_collect.py --question <id> --out $WORK/sources/so-<n>.md`
+- GitHub issue: `cd $SK && python3 gh_collect.py issue <owner/repo> <number> --out $WORK/sources/gh-issue-<n>.md`
+- Changelog: `cd $SK && python3 gh_collect.py releases <owner/repo> --limit 10 --out $WORK/sources/changelog-<n>.md`
+  (if the repo has no GitHub releases, WebFetch the CHANGELOG file or docs page instead)
 - Reddit, docs and blogs: WebFetch the page and save the substance (post plus comments with usernames
   where available; for docs, the relevant sections) to `$WORK/sources/<kind>-<n>.md`. The first line
   must be `Nguồn: <kind> — <url>`. If WebFetch fails on Reddit, save the title and search snippet, mark
@@ -211,7 +226,7 @@ Write `$OUT/<Chủ đề>.md` (no date in the file name; the date lives in the `
 ---
 type: tech-research
 topic: "<chủ đề>"
-queries: {youtube: [...], hn: [...], reddit: [...], web: [...], arxiv: [...]}
+queries: {youtube: [...], hn: [...], reddit: [...], so: [...], github: [owner/repo, ...], web: [...], arxiv: [...]}
 date: <YYYY-MM-DD>
 notebook_id: <id>
 sources: {total: <n ready>, youtube: <n>, community: <n>, docs: <n>, research: <n>}
@@ -282,3 +297,60 @@ infographic is made only if the user asked for it (`--deliverables infographic -
 Print the full report in chat (minus the frontmatter), then its file path and the notebook ID. If a
 source type or deliverable failed, say so plainly. Deliverables can be resumed with
 `pipeline.py --notebook <id> --deliverables <kind> --language vi --out $WORK`.
+
+## Quick mode (no NotebookLM, ~3–5 minutes)
+
+For a fast "A or B?" answer, or when NotebookLM is down or not logged in. Claude reads the sources
+itself, so the evidence base is smaller and the report says so.
+
+1. Step 1 as usual, but ask no question about deliverables. Skip the NotebookLM preflight; just
+   `mkdir -p $WORK/sources` and record the start time.
+2. Collect from step 3 **without YouTube** (search results give titles only, and summarizing a video
+   from its title is how citations get invented) and without arXiv: HN, Stack Overflow, GitHub issues
+   for the named tools, Reddit and docs via WebSearch. One or two queries per source.
+3. Select **8–12** sources with step 4's labels and priorities, and snapshot each one as in step 5.
+   In `sources.json` set `nlm_status` to `skipped` and `nlm_input` to the snapshot path.
+4. Read the snapshots. **Every claim must trace to a snapshot file**: before writing a quote or a
+   number, `grep` it in `$WORK/sources/`. What you can't find there is `chưa xác minh` or left out.
+5. Do step 7 (fact-check) and step 8 (metrics) in full; they don't need NotebookLM.
+6. Write the report from step 9 with `type: tech-research`, `mode: quick`, no `notebook_id`, and only
+   these sections: **Tóm tắt để ra quyết định**, **Bảng hỗ trợ**, **Số liệu áp dụng**,
+   **Kết luận & khuyến nghị**, **Nguồn** (`sources_table.py --all $WORK/sources.json --no-nlm`) and
+   **Phương pháp & ghi chú**. Directly under the byline add:
+   `> Bản nhanh: không qua NotebookLM, <n> nguồn. Chạy bản đầy đủ nếu cần quyết định quan trọng.`
+   Cap confidence at **Trung bình** unless the docs fact-check alone settles the point.
+7. No infographic unless the user asks. Print the report in chat, as in step 10.
+
+If quick mode was entered because NotebookLM failed, say so in the method notes.
+
+## Update mode (refresh an existing report)
+
+Input: the path of a report this skill wrote. The goal is to show **what changed since its `date`**,
+not to redo it.
+
+1. Read the report's frontmatter and its `assets/<SLUG>/sources.json`. Take `topic`, `queries`,
+   `date` (call it `OLD`), `notebook_id` and the tool list from the Bảng hỗ trợ. `WORK` is the
+   report's existing asset folder; write new files under `$WORK/update-<today>/`.
+2. Re-run step 3 with the stored queries, limited to the time since `OLD` (`--months` = months since
+   `OLD`, rounded up; GitHub issues and releases also since `OLD`). Always fetch the releases of every
+   tool in the table: new versions are the most common change. Drop any URL already in `sources.json`.
+3. Select new sources with step 4's rules (≤ 15). Number them after the last existing `n` and append
+   them to `sources.json`. Snapshot as in step 5.
+4. If `notebook_id` exists and `notebooklm auth check` passes, add the new sources to that notebook
+   (`pipeline.py --notebook <id> ... --out $WORK/update-<today>/load-1`; analysis then uses only the
+   new sources by default) and ask 2–3 Vietnamese questions: what is new, what contradicts the old
+   conclusions, which tools appeared or faded. Otherwise read the snapshots as in Quick mode, step 4.
+5. Redo step 7 for every row of the Bảng hỗ trợ and step 8 for every tool. Compare with the old values.
+6. Edit the report in place:
+   - Insert `## Cập nhật <today>` right after the byline: 3–6 bullets of what changed (new versions,
+     changed facts with old → new value, new tools, conclusions that still hold or no longer hold), each
+     with its [n] or doc link. Say plainly if nothing material changed.
+   - Update the Bảng hỗ trợ and Số liệu áp dụng tables in place, with the new check date.
+   - Change **Tóm tắt** and **Kết luận** only if the evidence changed them; mark each changed bullet
+     `(cập nhật <today>)`.
+   - Regenerate **Nguồn** from the extended `sources.json`.
+   - Frontmatter: set `date` to today, append the old date to `history: [<OLD>, ...]`, update
+     `sources`. Leave every other key as it is, including any the user added.
+   - Add the update's queries, source counts and run time to **Phương pháp & ghi chú**.
+7. Regenerate the infographic only if the report had one and the recommendation or a support badge
+   changed. Print the update section and the file path in chat.

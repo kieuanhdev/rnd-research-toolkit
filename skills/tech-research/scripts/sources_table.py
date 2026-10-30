@@ -9,6 +9,7 @@
 sources.json: [{"n", "kind", "label", "title", "url", "publisher", "nlm_status", "nlm_input"}];
 nlm_status is ready | partial (loaded, content incomplete) | error | skipped, and nlm_input is the
 exact --youtube/--url/--file value sent to NotebookLM.
+--all --no-nlm drops the NotebookLM column, for quick-mode reports.
 --all with --citation-key and --manifest prints "source_id -> [n] Publisher — Title" for every source.
 
 The YouTube mode joins youtube-search's --json output with notebooklm-studio's manifest.json so
@@ -62,7 +63,8 @@ def link_url(url):
     return urllib.parse.quote(url or "", safe=":/?#&=%@+~,;!*'")
 
 
-def render_all(sources):
+def render_all(sources, nlm=True):
+    """nlm=False (quick mode, no NotebookLM) drops the NotebookLM column and load count."""
     for s in sources:
         s["label"] = (s.get("label") or "").strip()
     bad = [s for s in sources if s["label"] not in LABELS]
@@ -70,18 +72,20 @@ def render_all(sources):
         print(f"invalid label in row {bad[0].get('n')}: {bad[0].get('label')!r}; "
               f"use one of: {', '.join(LABELS)}", file=sys.stderr)
         sys.exit(2)
-    lines = ["| # | Loại | Nhãn | Nguồn | Đơn vị / tác giả | NotebookLM |", "|---|---|---|---|---|---|"]
+    lines = ["| # | Loại | Nhãn | Nguồn | Đơn vị / tác giả |" + (" NotebookLM |" if nlm else ""),
+             "|---|---|---|---|---|" + ("---|" if nlm else "")]
     for s in sources:
         lines.append(f"| {s.get('n', '?')} | {s.get('kind', 'N/A')} | {s['label']} "
                      f"| [{cell(s.get('title') or 'N/A')}]({link_url(s.get('url'))}) "
-                     f"| {cell(s.get('publisher') or 'N/A')} | {s.get('nlm_status', 'N/A')} |")
+                     f"| {cell(s.get('publisher') or 'N/A')} |" + (f" {s.get('nlm_status', 'N/A')} |" if nlm else ""))
     kinds = collections.Counter(s.get("kind", "N/A") for s in sources)
     labels = collections.Counter(s["label"] for s in sources)
     ready = sum(1 for s in sources if s.get("nlm_status") in LOADED)
     lines += ["",
               f"- **Theo loại:** " + ", ".join(f"{k}: {v}" for k, v in kinds.most_common()),
-              f"- **Theo nhãn:** " + ", ".join(f"{k}: {v}" for k, v in labels.most_common()),
-              f"- **NotebookLM nạp thành công:** {ready}/{len(sources)}"]
+              f"- **Theo nhãn:** " + ", ".join(f"{k}: {v}" for k, v in labels.most_common())]
+    if nlm:
+        lines.append(f"- **NotebookLM nạp thành công:** {ready}/{len(sources)}")
     return "\n".join(lines)
 
 
@@ -105,6 +109,7 @@ def main():
     p.add_argument("--manifest", action="append", default=[],
                    help="notebooklm-studio manifest.json, for per-source status (repeatable; later wins)")
     p.add_argument("--urls", nargs="*", help="selected video URLs, in report order")
+    p.add_argument("--no-nlm", action="store_true", help="--all without the NotebookLM column (quick mode)")
     p.add_argument("--citation-key", action="store_true",
                    help="print NotebookLM source_id -> video name mapping and exit")
     args = p.parse_args()
@@ -119,7 +124,7 @@ def main():
                     manifests.append(json.load(f))
             print("\n".join(citation_key(sources, manifests)))
         else:
-            print(render_all(sources))
+            print(render_all(sources, nlm=not args.no_nlm))
         return
     if not args.search_json:
         p.error("give search.json or --all sources.json")

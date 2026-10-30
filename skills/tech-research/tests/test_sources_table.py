@@ -24,6 +24,11 @@ class RenderAllTest(unittest.TestCase):
         self.assertEqual(lines[0], ALL_HEADER)
         self.assertEqual(lines[2], "| 1 | youtube | Nhà cung cấp | [T1](https://x/1) | P | ready |")
 
+    def test_render_all_without_nlm(self):
+        out = sources_table.render_all([src(1, "so", "Cộng đồng")], nlm=False)
+        self.assertNotIn("NotebookLM", out)
+        self.assertEqual(out.splitlines()[0].count("|"), 6)
+
     def test_render_all_counts(self):
         md = sources_table.render_all([src(1, "youtube"), src(2, "youtube"), src(3, "hn")])
         self.assertIn("youtube: 2", md)

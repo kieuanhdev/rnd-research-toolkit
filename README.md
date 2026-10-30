@@ -6,14 +6,14 @@ Plugin Claude Code cho team R&D: nghiên cứu một chủ đề công nghệ t�
 
 | Skill | Việc làm |
 |---|---|
-| `tech-research` | Quy trình chính: tìm nguồn (YouTube, Hacker News, Reddit, docs/blog, arXiv), gắn nhãn nguồn, phân tích, kiểm chứng, lấy số liệu GitHub/pub.dev/npm/PyPI/crates.io, viết báo cáo + infographic |
+| `tech-research` | Quy trình chính: tìm nguồn (YouTube, Hacker News, Reddit, Stack Overflow, GitHub issues/changelog, docs/blog, arXiv), gắn nhãn nguồn, phân tích, kiểm chứng, lấy số liệu GitHub/pub.dev/npm/PyPI/crates.io, viết báo cáo + infographic |
 | `youtube-search` | Tìm video YouTube bằng yt-dlp, lọc theo thời gian, tính tỉ lệ views/subscribers |
 | `notebooklm-studio` | Đưa nguồn vào NotebookLM, hỏi đáp có trích dẫn, tạo podcast, mind map, flashcards, infographic |
 
 ## Cài đặt
 
 ```
-/plugin marketplace add <org>/rnd-research-toolkit
+/plugin marketplace add kieuanhdev/rnd-research-toolkit
 /plugin install rnd-research-toolkit
 ```
 
@@ -26,6 +26,9 @@ Plugin Claude Code cho team R&D: nghiên cứu một chủ đề công nghệ t�
 | YouTube | `yt-dlp`, lọc theo thời gian | Có thống kê views/subscribers |
 | Hacker News | API Algolia miễn phí | Chỉ giữ bài có bình luận; chủ đề hẹp thì HN ít, và đó cũng là một kết quả |
 | Reddit | Tìm web `site:reddit.com` | Thường chỉ lấy được một phần, báo cáo sẽ ghi rõ |
+| Stack Overflow | API Stack Exchange miễn phí (300 lượt/ngày) | Chỉ lấy câu hỏi đã có trả lời; hợp với thư viện, framework |
+| GitHub issues | API GitHub, issue nhiều bình luận nhất của chính công cụ | Thấy lỗi thật người dùng gặp; đánh dấu bình luận của maintainer |
+| Changelog | GitHub Releases (hoặc file CHANGELOG) | Biết công cụ còn phát triển không, phiên bản mới thay đổi gì |
 | Tài liệu chính thức và blog kỹ thuật | Tìm web, rồi đọc trang | Gồm cả bài so sánh và kinh nghiệm chuyển đổi |
 | arXiv | API arXiv, nạp cả file PDF | Chỉ khi chủ đề có nghiên cứu học thuật |
 
@@ -66,6 +69,8 @@ so sánh Patrol, Maestro và Detox cho app Flutter, nên chọn cái nào?
 chỉ YouTube: research Claude Code skills vs MCP servers
 ```
 
+Cần câu trả lời nhanh thì dùng `/research-quick`. Bản này cũng là phương án dự phòng khi NotebookLM lỗi.
+
 Mẹo: nói rõ bạn cần quyết định gì, kể tên các công cụ đang cân nhắc, và nêu ràng buộc của team. Một lần chạy mất khoảng 10–20 phút.
 
 Báo cáo lưu ở `<Chủ đề>.md`, kèm thư mục `assets/<chủ-đề>/` (nguồn, phân tích, infographic).
@@ -77,6 +82,8 @@ Chạy `/research-doctor` để biết máy còn thiếu gì và cách sửa.
 ## Lệnh nhanh
 
 - `/research <chủ đề>`: nghiên cứu đa nguồn
+- `/research-quick <chủ đề>`: bản nhanh 3–5 phút, không qua NotebookLM, ít nguồn hơn
+- `/research-update <báo cáo.md>`: cập nhật báo cáo cũ, chỉ tìm những gì mới từ ngày viết
 - `/research-youtube <chủ đề>`: chỉ YouTube
 - `/research-doctor`: kiểm tra môi trường
 

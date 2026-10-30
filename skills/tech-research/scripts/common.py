@@ -3,6 +3,7 @@
 Collectors must never crash a research run, so these return (value, error) instead of raising.
 """
 import datetime
+import gzip
 import json
 import urllib.error
 import urllib.request
@@ -14,7 +15,10 @@ def get_text(url, timeout=20, headers=None):
     req = urllib.request.Request(url, headers={"User-Agent": USER_AGENT, **(headers or {})})
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            return resp.read().decode("utf-8", errors="replace"), None
+            raw = resp.read()
+            if resp.headers.get("Content-Encoding") == "gzip":  # the Stack Exchange API always gzips
+                raw = gzip.decompress(raw)
+            return raw.decode("utf-8", errors="replace"), None
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")[:200]
         return None, f"HTTP {e.code} {e.reason} {body}".strip()
