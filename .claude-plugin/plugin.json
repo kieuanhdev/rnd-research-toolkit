@@ -1,7 +1,5 @@
 {
   "name": "rnd-research-toolkit",
   "version": "0.3.0",
-  "description": "Nghiên cứu công nghệ đa nguồn (YouTube, HN, Reddit, docs, arXiv, GitHub/registries) phân tích bằng NotebookLM, xuất báo cáo tiếng Việt và infographic.",
-  "skills": "./skills/",
-  "commands": "./commands/"
+  "description": "Nghiên cứu công nghệ đa nguồn (YouTube, HN, Reddit, docs, arXiv, GitHub/registries) phân tích bằng NotebookLM, xuất báo cáo tiếng Việt và infographic."
 }

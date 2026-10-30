@@ -298,7 +298,7 @@ Print the full report in chat (minus the frontmatter), then its file path and th
 source type or deliverable failed, say so plainly. Deliverables can be resumed with
 `pipeline.py --notebook <id> --deliverables <kind> --language vi --out $WORK`.
 
-## Quick mode (no NotebookLM, ~3–5 minutes)
+## Quick mode (no NotebookLM, faster than a full run)
 
 For a fast "A or B?" answer, or when NotebookLM is down or not logged in. Claude reads the sources
 itself, so the evidence base is smaller and the report says so.
@@ -331,9 +331,13 @@ not to redo it.
 1. Read the report's frontmatter and its `assets/<SLUG>/sources.json`. Take `topic`, `queries`,
    `date` (call it `OLD`), `notebook_id` and the tool list from the Bảng hỗ trợ. `WORK` is the
    report's existing asset folder; write new files under `$WORK/update-<today>/`.
+   Older reports may lack pieces. No `sources.json` (e.g. `type: youtube-research`): rebuild the known
+   URL list from the report's **Nguồn** section and number new sources after the highest [n] there.
+   No `queries`: derive short English queries from `topic` as in step 1. Missing Bảng hỗ trợ: take the
+   tools from the report's headings and tables. Note each such gap in the method notes.
 2. Re-run step 3 with the stored queries, limited to the time since `OLD` (`--months` = months since
-   `OLD`, rounded up; GitHub issues and releases also since `OLD`). Always fetch the releases of every
-   tool in the table: new versions are the most common change. Drop any URL already in `sources.json`.
+   `OLD`, rounded up; GitHub issues since `OLD`; releases with `gh_collect.py releases <repo> --since OLD`).
+   Always fetch the releases of every tool in the table: new versions are the most common change. Drop any URL already in `sources.json`.
 3. Select new sources with step 4's rules (≤ 15). Number them after the last existing `n` and append
    them to `sources.json`. Snapshot as in step 5.
 4. If `notebook_id` exists and `notebooklm auth check` passes, add the new sources to that notebook

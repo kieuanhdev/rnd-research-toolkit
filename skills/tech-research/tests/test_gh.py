@@ -38,6 +38,13 @@ class MarkdownTest(unittest.TestCase):
         self.assertNotIn("secret", md)
         self.assertIn("## v1 (pre-release) · 2026-05-01", md)
 
+    def test_releases_since(self):
+        rels = [{"tag_name": "new", "published_at": "2026-10-01T00:00:00Z"},
+                {"tag_name": "old", "published_at": "2026-01-01T00:00:00Z"}]
+        md = gh_collect.releases_markdown("o/r", rels, since="2026-06-01")
+        self.assertIn("## new", md)
+        self.assertNotIn("## old", md)
+
 
 if __name__ == "__main__":
     unittest.main()

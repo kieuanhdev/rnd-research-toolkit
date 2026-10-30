@@ -3,7 +3,7 @@
 
     gh_collect.py issues <owner/repo> ["<query>"] [--months 12] [--limit 10] --json
     gh_collect.py issue <owner/repo> <number> --out issue.md
-    gh_collect.py releases <owner/repo> [--limit 10] --out releases.md
+    gh_collect.py releases <owner/repo> [--limit 10] [--since YYYY-MM-DD] --out releases.md
 
 Issues show the problems real users hit; releases are the changelog. Uses the GitHub REST API with
 the same token lookup as metrics.py (GH_TOKEN or a logged-in gh); without one, search allows
@@ -64,10 +64,10 @@ def issue_markdown(issue, comments, max_chars=40000):
     return md
 
 
-def releases_markdown(repo, releases, max_chars=40000):
+def releases_markdown(repo, releases, max_chars=40000, since=None):
     lines = [f"Nguồn: GitHub Releases — https://github.com/{repo}/releases", "", f"# Changelog {repo}"]
     for r in releases:
-        if r.get("draft"):
+        if r.get("draft") or (since and (r.get("published_at") or "")[:10] < since):
             continue
         tag = r.get("tag_name") or r.get("name")
         pre = " (pre-release)" if r.get("prerelease") else ""
@@ -104,6 +104,7 @@ def main():
     s = sub.add_parser("releases")
     s.add_argument("repo")
     s.add_argument("--limit", type=int, default=10)
+    s.add_argument("--since", help="only releases published on or after this date (YYYY-MM-DD)")
     s.add_argument("--out", required=True)
     args = p.parse_args()
 
@@ -123,7 +124,7 @@ def main():
         if err:
             print(f"error: {err}", file=sys.stderr)
             return 1
-        md = releases_markdown(args.repo, releases)
+        md = releases_markdown(args.repo, releases, since=args.since)
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(md)
     print(args.out)

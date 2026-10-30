@@ -13,6 +13,12 @@ Plugin Claude Code cho team R&D: nghiên cứu một chủ đề công nghệ t�
 ## Cài đặt
 
 ```
+/plugin install rnd-research-toolkit --marketplace kieuanhdev/rnd-research-toolkit
+```
+
+Claude Code cũ hơn 2.1.275 thì cài bằng hai lệnh:
+
+```
 /plugin marketplace add kieuanhdev/rnd-research-toolkit
 /plugin install rnd-research-toolkit
 ```
@@ -82,7 +88,7 @@ Chạy `/research-doctor` để biết máy còn thiếu gì và cách sửa.
 ## Lệnh nhanh
 
 - `/research <chủ đề>`: nghiên cứu đa nguồn
-- `/research-quick <chủ đề>`: bản nhanh 3–5 phút, không qua NotebookLM, ít nguồn hơn
+- `/research-quick <chủ đề>`: bản nhanh, không qua NotebookLM, ít nguồn hơn
 - `/research-update <báo cáo.md>`: cập nhật báo cáo cũ, chỉ tìm những gì mới từ ngày viết
 - `/research-youtube <chủ đề>`: chỉ YouTube
 - `/research-doctor`: kiểm tra môi trường
