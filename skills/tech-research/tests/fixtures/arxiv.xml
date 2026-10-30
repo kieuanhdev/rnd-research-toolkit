@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:arxiv="http://arxiv.org/schemas/atom" xmlns="http://www.w3.org/2005/Atom">
+  <id>https://arxiv.org/api/RClOG5WRmCO7zZ2/zAQkpdQ8ew8</id>
+  <title>arXiv Query: search_query=all:"GUI testing" AND all:LLM&amp;id_list=&amp;start=0&amp;max_results=3</title>
+  <updated>2026-10-27T16:10:55Z</updated>
+  <link href="https://arxiv.org/api/query?search_query=all:%22GUI+testing%22+AND+all:LLM&amp;start=0&amp;max_results=3&amp;id_list=" type="application/atom+xml"/>
+  <opensearch:itemsPerPage>3</opensearch:itemsPerPage>
+  <opensearch:totalResults>31</opensearch:totalResults>
+  <opensearch:startIndex>0</opensearch:startIndex>
+  <entry>
+    <id>http://arxiv.org/abs/2610.33636v1</id>
+    <title>Build or Adopt? Custom-Built vs. General-Purpose LLM Agent Harnesses for Automotive GUI Testing</title>
+    <updated>2026-10-24T12:32:16Z</updated>
+    <link href="https://arxiv.org/abs/2610.33636v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.33636v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>As general-purpose LLM agent harnesses mature, organizations must decide whether to continue developing in-house systems or adopt existing alternatives. We study this decision at Volvo Group for GUI testing of Android-based in-vehicle infotainment (IVI) systems. We compare a production, custom-built harness with two general-purpose harnesses, Claude Code and OpenCode, keeping the tools, accessed through the Model Context Protocol (MCP), and the models the same. We evaluate the harnesses with up to four models on Volvo's IVI test cases and on open-ended tasks in public apps (Google Maps, Booking.com), and interview ten practitioners: developers, the product owner, and testers. On Volvo's stepwise IVI tests, general-purpose harnesses match the custom-built harness in success but vary more across runs. Their inference cost per task is 2.6-10.7 times higher, yet the engineering effort they save outweighs this: for a nightly IVI regression suite, total monthly cost, including engineering effort and inference, is 3-66% lower. On open-ended public-app tasks, they succeed more often, mainly because they recover better from incorrect actions. Interviews suggest that external advances can turn an in-house harness into technical debt even without deterioration. Adopting a general-purpose harness shifts maintenance from the agent loop to tools and instructions, but gives teams less control over what the model receives. Regardless of the harness, testers want to inspect the agent's actions and ensure that it follows the prescribed test scenario.</summary>
+    <category term="cs.SE" scheme="http://arxiv.org/schemas/atom"/>
+    <category term="cs.AI" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-24T12:32:16Z</published>
+    <arxiv:primary_category term="cs.SE"/>
+    <author>
+      <name>Arsham Gholamzadeh Khoee</name>
+    </author>
+    <author>
+      <name>Ruyu Fu</name>
+    </author>
+    <author>
+      <name>Jiaqi Wei</name>
+    </author>
+    <author>
+      <name>Ruikun Deng</name>
+    </author>
+    <author>
+      <name>Robert Feldt</name>
+    </author>
+    <author>
+      <name>Dhasarathy Parthasarathy</name>
+    </author>
+    <author>
+      <name>Yinan Yu</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.32482v1</id>
+    <title>WaitLens: Temporal VLM-Based Adaptive Waiting for Industrial GUI Testing Agents</title>
+    <updated>2026-10-23T10:54:18Z</updated>
+    <link href="https://arxiv.org/abs/2610.32482v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.32482v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Improving the efficiency of GUI testing agents is important for industrial deployment. Beyond LLM inference, fixed waiting between consecutive interactions introduces substantial overhead. Our industrial study reveals that fixed waiting accounts for 42.3% of the time within the sampled interaction intervals, comparable to the 54.8% spent on model calls. Moreover, 62.9% of the waiting time is spent after the GUI has already finished loading. Although prior studies have proposed adaptive waiting strategies, their reliance on app-specific data or platform-specific information limits their applicability across diverse industrial environments. To this end, we propose WaitLens, which fine-tunes a lightweight VLM on GUI loading trajectories annotated with waiting end times. We introduce temporal resampling to construct diverse training examples, enabling the model to learn varying GUI loading behaviors from temporal observations. Experiments show that WaitLens achieves 86.08% accuracy in deciding whether to keep waiting, compared with 54.13% for the backbone VLM. Our evaluation using recordings from Meituan's industrial testing pipeline shows that WaitLens reduces mean extra waiting after the interface is ready by 94.98% compared with a 20-second fixed wait.</summary>
+    <category term="cs.SE" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-23T10:54:18Z</published>
+    <arxiv:comment>11 pages, 7 figures, and 2 tables</arxiv:comment>
+    <arxiv:primary_category term="cs.SE"/>
+    <author>
+      <name>Shika Ikeura</name>
+    </author>
+    <author>
+      <name>Xuan Wang</name>
+    </author>
+    <author>
+      <name>Ziyi Kuang</name>
+    </author>
+    <author>
+      <name>Jianping Xu</name>
+    </author>
+    <author>
+      <name>Chao Kang</name>
+    </author>
+    <author>
+      <name>Yongxiang Hu</name>
+    </author>
+    <author>
+      <name>Xiaoyu Wang</name>
+    </author>
+    <author>
+      <name>Juxing Yuan</name>
+    </author>
+    <author>
+      <name>Yangfan Zhou</name>
+    </author>
+  </entry>
+  <entry>
+    <id>http://arxiv.org/abs/2610.05001v1</id>
+    <title>LLM-Based Test Generation: Information Sources, Generation Strategies, and Quality Evidence</title>
+    <updated>2026-10-04T06:44:27Z</updated>
+    <link href="https://arxiv.org/abs/2610.05001v1" rel="alternate" type="text/html"/>
+    <link href="https://arxiv.org/pdf/2610.05001v1" rel="related" type="application/pdf" title="pdf"/>
+    <summary>Large language models are increasingly used to generate test scenarios, executable test suites, assertions, interaction sequences, and fuzzing infrastructure. These artifacts serve different purposes and rely on different sources of information about correct behavior. A test that increases implementation coverage, a test that agrees with a reference program, and a test that detects a requirements violation therefore provide distinct kinds of evidence. We present a structured narrative survey that connects the generation process to the evidence used to justify test quality. Drawing on 95 curated source records through 29 September 2026, we organize the field along four dimensions: testing objectives and artifacts, information available during training and generation, generation and learning mechanisms, and evaluation evidence. We synthesize work on unit and requirements-based testing, test oracles, API and GUI testing, fuzzing, and learned test generators. The resulting framework explains how execution feedback can improve executability while also affecting the independence of an oracle, why specification provenance and training-time reference supervision matter for comparisons, and how downstream code-selection gains differ from test correctness. We use these distinctions to organize benchmarks and derive a research agenda for independent oracle assessment, budget-aware generation, repository-scale evaluation, and test maintenance.</summary>
+    <category term="cs.SE" scheme="http://arxiv.org/schemas/atom"/>
+    <published>2026-10-04T06:44:27Z</published>
+    <arxiv:primary_category term="cs.SE"/>
+    <author>
+      <name>Yunhao Liang</name>
+    </author>
+    <author>
+      <name>Chengguang Gan</name>
+    </author>
+    <author>
+      <name>Ruixuan Ying</name>
+    </author>
+    <author>
+      <name>Hanjun Wei</name>
+    </author>
+    <author>
+      <name>Zhe Cui</name>
+    </author>
+    <author>
+      <name>Shiwen Ni</name>
+    </author>
+  </entry>
+</feed>

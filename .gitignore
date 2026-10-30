@@ -1,0 +1,5 @@
+.env
+.obsidian/
+assets/
+__pycache__/
+*.pyc

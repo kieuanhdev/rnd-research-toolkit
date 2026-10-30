@@ -1,0 +1,11 @@
+{
+  "name": "rnd-research-toolkit",
+  "owner": { "name": "Ban Research" },
+  "plugins": [
+    {
+      "name": "rnd-research-toolkit",
+      "source": "./",
+      "description": "Bộ skill nghiên cứu công nghệ đa nguồn cho team R&D: tech-research, youtube-search, notebooklm-studio."
+    }
+  ]
+}
