@@ -1,7 +1,7 @@
 ---
 name: tech-research
 description: Multi-source research on a technology or programming topic. Collects recent sources from YouTube, Hacker News, Reddit (via web search), official docs and tech blogs, and arXiv; pulls adoption metrics from GitHub and package registries (pub.dev, npm, PyPI, crates.io); loads the sources into a new Google NotebookLM notebook for cited analysis aimed at the user's question; fact-checks key capability claims against official docs; and writes a Vietnamese decision report with source labels, confidence levels, a metrics table, a "Thử nhanh" quick-start section and an HTML infographic, saved in the current working directory and shown in chat. Use it whenever the user wants to research, compare, evaluate or get a briefing on tools, frameworks, libraries or technical approaches ("research X", "tìm hiểu X", "so sánh A và B", "nên dùng gì cho X"), even if they don't name the sources. If they say "chỉ YouTube" (YouTube only), run the YouTube-only path described inside.
-compatibility: Needs the youtube-search skill (yt-dlp) and the notebooklm-studio skill (notebooklm-py CLI, logged in), both in this plugin's skills/ folder. Python 3 stdlib for the collectors; Playwright + /usr/bin/google-chrome for the infographic; WebSearch/WebFetch for docs, blogs and Reddit.
+compatibility: Needs the youtube-search skill (yt-dlp) and the notebooklm-studio skill (notebooklm-py CLI, logged in), both in this plugin's skills/ folder. Python 3 stdlib for the collectors; Playwright + Chrome/Chromium (auto-detected, or CHROME_PATH) for the infographic; WebSearch/WebFetch for docs, blogs and Reddit.
 ---
 
 # Tech Research (multi-source)

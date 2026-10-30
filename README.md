@@ -17,6 +17,24 @@ Plugin Claude Code cho team R&D: nghiên cứu một chủ đề công nghệ t�
 /plugin install rnd-research-toolkit
 ```
 
+## Nguồn dữ liệu
+
+**Nguồn để đọc và phân tích** (khoảng 20–30 nguồn mỗi lần, không độn nguồn lạc đề):
+
+| Nguồn | Cách lấy | Ghi chú |
+|---|---|---|
+| YouTube | `yt-dlp`, lọc theo thời gian | Có thống kê views/subscribers |
+| Hacker News | API Algolia miễn phí | Chỉ giữ bài có bình luận; chủ đề hẹp thì HN ít, và đó cũng là một kết quả |
+| Reddit | Tìm web `site:reddit.com` | Thường chỉ lấy được một phần, báo cáo sẽ ghi rõ |
+| Tài liệu chính thức và blog kỹ thuật | Tìm web, rồi đọc trang | Gồm cả bài so sánh và kinh nghiệm chuyển đổi |
+| arXiv | API arXiv, nạp cả file PDF | Chỉ khi chủ đề có nghiên cứu học thuật |
+
+**Số liệu áp dụng:** GitHub (sao, issue/PR mở), pub.dev, npm, PyPI, crates.io.
+
+**Nhãn nguồn:** mỗi nguồn được gắn đúng một nhãn (`Nhà cung cấp`, `Cộng đồng`, `Tài liệu chính thức`, `Nghiên cứu`, `Báo chí / tổng hợp`). Nhờ vậy báo cáo phân biệt được lời quảng cáo với ý kiến người dùng độc lập.
+
+**Phân tích:** toàn bộ nguồn được nạp vào một notebook NotebookLM mới để hỏi đáp có trích dẫn. Nếu công cụ bạn hỏi không xuất hiện trong nguồn, báo cáo nói là "thiếu trong bộ nguồn", không kết luận là nó không tồn tại.
+
 ## Cài nhanh
 
 ```
