@@ -1,6 +1,9 @@
 {
   "name": "rnd-research-toolkit",
-  "owner": { "name": "Ban Research" },
+  "description": "Bộ công cụ nghiên cứu công nghệ cho team R&D.",
+  "owner": {
+    "name": "Ban Research"
+  },
   "plugins": [
     {
       "name": "rnd-research-toolkit",
