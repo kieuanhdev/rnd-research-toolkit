@@ -1,10 +1,15 @@
 #!/usr/bin/env python3
 """Check the tools the research plugin needs and print how to fix what is missing.
 
-    python3 doctor.py
+    python3 doctor.py          # kiểm tra, in lệnh sửa
+    python3 doctor.py --fix    # in danh sách lệnh cài, hỏi xác nhận, cài rồi kiểm tra lại
+    python3 doctor.py --fix --yes   # như trên nhưng không hỏi (dùng khi người dùng đã đồng ý)
+
+Login steps (notebooklm login, gh auth login) are never run for the user.
 
 Exit code 0 when every required check passes, 1 otherwise.
 """
+import argparse
 import importlib.util
 import os
 import shutil
@@ -23,7 +28,52 @@ def run(cmd):
         return False, str(e)
 
 
+def install_plan():
+    """Commands that can install what is missing. Logins are excluded on purpose."""
+    pip = [sys.executable, "-m", "pip", "install", "--user"]
+    pipx = shutil.which("pipx")
+
+    def py_tool(pkg):
+        return [pipx, "install", pkg] if pipx else pip + [pkg]
+
+    plan = []
+    if not shutil.which("yt-dlp"):
+        plan.append(py_tool("yt-dlp"))
+    if not shutil.which("notebooklm"):
+        plan.append(py_tool("notebooklm-py"))
+    if importlib.util.find_spec("playwright") is None:
+        plan.append(pip + ["playwright"])
+    if not find_chrome():
+        plan.append([sys.executable, "-m", "playwright", "install", "chromium"])
+    return plan
+
+
+def apply_fix(assume_yes):
+    plan = install_plan()
+    if not plan:
+        print("Không có gì để cài tự động.")
+        return
+    print("Sẽ chạy các lệnh sau:")
+    for c in plan:
+        print("  " + " ".join(c))
+    if not assume_yes:
+        if not sys.stdin.isatty() or input("Tiếp tục? [y/N] ").strip().lower() != "y":
+            print("Đã huỷ. Chạy lại với --yes nếu bạn đồng ý cài.")
+            return
+    for c in plan:
+        print("\n$ " + " ".join(c))
+        if subprocess.run(c).returncode != 0:
+            print("Lệnh trên lỗi, bỏ qua và chạy tiếp.")
+    print("\nĐăng nhập (cần bạn tự làm): `notebooklm login`, và tuỳ chọn `gh auth login`.\n")
+
+
 def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--fix", action="store_true")
+    ap.add_argument("--yes", action="store_true")
+    args = ap.parse_args()
+    if args.fix:
+        apply_fix(args.yes)
     rows = []  # (label, ok, required, fix)
     rows.append(("Python >= 3.9", sys.version_info >= (3, 9), True, "Cài Python 3.9 trở lên"))
     rows.append(("yt-dlp", bool(shutil.which("yt-dlp")), True, "pipx install yt-dlp"))

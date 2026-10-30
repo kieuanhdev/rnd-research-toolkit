@@ -17,7 +17,16 @@ Plugin Claude Code cho team R&D: nghiên cứu một chủ đề công nghệ t�
 /plugin install rnd-research-toolkit
 ```
 
-## Chuẩn bị (làm một lần)
+## Cài nhanh
+
+```
+/research-doctor        # kiểm tra máy còn thiếu gì
+/research-doctor fix    # liệt kê lệnh cài, hỏi xác nhận, rồi cài
+```
+
+Tự cài được: `yt-dlp`, `notebooklm-py`, Playwright và Chromium. Bạn phải tự đăng nhập: `notebooklm login` (mở trình duyệt, đăng nhập Google) và tuỳ chọn `gh auth login`.
+
+## Chuẩn bị thủ công (nếu không dùng `/research-doctor fix`)
 
 | Việc | Cách làm | Bắt buộc |
 |---|---|---|
